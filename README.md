@@ -1,1 +1,1 @@
-# BrainAnnotationMapping
+# BrainAnnotationMapping.jl
