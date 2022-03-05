@@ -1,0 +1,13 @@
+name = "BrainAnnotationMapping"
+uuid = "b2487db3-5334-4ba7-8dc4-363ca558c56d"
+authors = ["Donghoon Lee <mdhe1248@gmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
