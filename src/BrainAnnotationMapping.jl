@@ -66,5 +66,4 @@ end
 """Cound cells in each brain region given `subbrain_fos_lbl`(each cell[row] with label id) and `target_id` (target brain id)"""
 count_cells(subbrain_fos_lbl::Vector, target_id::Number) = sum(subbrain_fos_lbl .== target_id)  
 
-
 end
