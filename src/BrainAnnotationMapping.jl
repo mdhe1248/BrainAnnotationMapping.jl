@@ -1,8 +1,19 @@
 module BrainAnnotationMapping
-using JSON
+using JSON, DataFrames, CSV
 
-export retrieve, isdownstream, label_points, filter_points, count_cells
+export retrieve, isdownstream, label_points, filter_points, count_cells, brainmapping, saveData, load_brainmap_json
 # Write your package code here.
+
+""" warpper function"""
+function brainmapping(annotationImg, annotation, pts_filtered)
+  subbrain_ids = Int.(unique(annotationImg))
+  subbrain_labels = map(x -> retrieve(annotation[1], "name", "id", x), subbrain_ids)
+  subbrain_fos_lbl = label_points(annotationImg, pts_filtered) # label each point
+  fosncells = map(x -> count_cells(subbrain_fos_lbl, x), subbrain_ids) # Count cells in each subbrain
+  parent_ids = map(x -> retrieve(annotation[1],"parent_structure_id", "id", x), subbrain_ids)
+  return(subbrain_ids, subbrain_labels, subbrain_fos_lbl, fosncells, parent_ids)
+end
+
 """
 Find the Dict value from `key_of_interest` in a nested Dictionary.
 A nested dictionary might be from JSON file.
@@ -65,5 +76,20 @@ end
 
 """Cound cells in each brain region given `subbrain_fos_lbl`(each cell[row] with label id) and `target_id` (target brain id)"""
 count_cells(subbrain_fos_lbl::Vector, target_id::Number) = sum(subbrain_fos_lbl .== target_id)  
+
+function load_brainmap_json(jsonfn)
+  d = []
+  open(jsonfn) do io
+    push!(d, JSON.parse(io))
+  end
+  return(d)
+end
+
+function saveData(results_dir, subbrain_ids, subbrain_labels, fosncells)
+  dtf = DataFrame(subbrain_ids = subbrain_ids, subbrain_labels = subbrain_labels, fos_ncells = fosncells)
+  dtf.subbrain_labels = replace(dtf.subbrain_labels, nothing => missing)
+  isdir(results_dir) ? nothing : mkdir(results_dir)
+  CSV.write(results_dir*"cfos_counts.csv", dtf, delim = ';')
+end
 
 end
