@@ -1,6 +1,6 @@
 module BrainAnnotationMapping
 
-export retrieve, isdownstream, label_points, filter_points, count_cells, brainmapping, saveData, load_brainmap_json, annotation_boundary
+export retrieve, isdownstream, label_points, filter_points, count_cells, brainmapping, saveData, load_brainmap_json, annotation_boundary, appendCol!
 # Write your package code here.
 
 include("annotationmapping_idisco.jl")
