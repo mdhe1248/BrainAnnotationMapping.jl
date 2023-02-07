@@ -22,7 +22,7 @@ append a column.
 empty values will have `missing`.
 """
 function appendCol!(structures, lbls, dat, newcolname::Symbol)
-  if lenbth(lbls) .!= length(dat)
+  if length(lbls) .!= length(dat)
     warn("Length of `lbls` and `dat` must be the same.")
   end
   v = fill(missing, size(structures,1))
