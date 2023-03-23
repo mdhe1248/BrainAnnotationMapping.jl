@@ -77,14 +77,14 @@ function getPosCounts(annotationimgw, pos, amp)
 end
 
 """ get mean intensities in each brain area"""
-function getIntensityMean(fixedw, annotationimgw, img) 
+function getIntensityMean(annotationimgw, img)
   ## Load image
   lbls = Integer.(unique(annotationimgw))
   meanintensities = [mean(img[annotationimgw .== lbl]) for lbl in lbls]
   return(lbls, meanintensities)
 end
 
-function getIntensityMean(fixedw, annotationimgw, img, thresh) 
+function getIntensityMean(annotationimgw, img, thresh)
   ## Load image
   lbls = Integer.(unique(annotationimgw))
   meanintensities = [mean(img[annotationimgw .== lbl .&& img .>= thresh]) for lbl in lbls]
@@ -92,7 +92,7 @@ function getIntensityMean(fixedw, annotationimgw, img, thresh)
 end
 
 """ get number of pixels of each brain area"""
-function getNPixels(fixedw, annotationimgw, img) 
+function getNPixels(annotationimgw, img)
   ## Load image
   lbls = Integer.(unique(annotationimgw))
   npixels = [length(img[annotationimgw .== lbl]) for lbl in lbls]
