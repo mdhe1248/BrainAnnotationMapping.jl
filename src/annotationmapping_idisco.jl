@@ -119,3 +119,19 @@ function _voxelize_roi!(img1, img, p1, amp, r, k)
   end
   return(img1)
 end
+
+"""
+filter blobs by position
+`range_limit` is a vector of UnitRange.
+e.g.) [1:300, 1:300, 1:200]
+"""
+function blob_pos_filter(blobs, range_limit)
+  blobf = Vector{eltype(blobs)}()
+  for blob in blobs
+    pos = blob.location.I
+    if all(pos .∈  range_limit)
+      push!(blobf, blob)
+    end
+  end
+  blobf
+end 
