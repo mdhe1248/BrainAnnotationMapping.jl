@@ -67,7 +67,7 @@ function filter_points(img, pts)
   keepy = map(x -> x[2], pts) .> sz[1]
   keepz = map(x -> x[3], pts) .> sz[3]
   keep = .!(keepx .| keepy .| keepz)
-  return(pts[keep])
+  return(pts[keep], keep)
 end
 
 """Cound cells in each brain region given `subbrain_fos_lbl`(each cell[row] with label id) and `target_id` (target brain id)"""
