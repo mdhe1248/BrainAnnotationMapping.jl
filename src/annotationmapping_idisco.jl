@@ -110,7 +110,7 @@ end
 
 function _voxelize_roi!(img1, p1, amp, r, k)
   fi = max(CartesianIndex(p1.-r), CartesianIndex(1,1,1))
-  li = min(CartesianIndex(p1.+r), CartesianIndex(size(img)))
+  li = min(CartesianIndex(p1.+r), CartesianIndex(size(img1)))
   for (i, ci) in enumerate(fi:li)
     if sqrt((ci.I[1]-p1[1])^2+(ci.I[2]-p1[2])^2+(ci.I[3]-p1[3])^2) <= r
       amp = amp
