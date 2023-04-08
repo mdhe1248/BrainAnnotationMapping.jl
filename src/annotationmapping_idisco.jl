@@ -63,9 +63,9 @@ end
 """ filter points outside annotation image"""
 function filter_points(img, pts)
   sz = size(img) 
-  keepx = map(x -> x[1], pts) .> sz[2]
-  keepy = map(x -> x[2], pts) .> sz[1]
-  keepz = map(x -> x[3], pts) .> sz[3]
+  keepx = map(x -> x[1], pts) .> sz[2] .|| map(x -> x[1], pts) .< 1
+  keepy = map(x -> x[2], pts) .> sz[1] .|| map(x -> x[2], pts) .< 1
+  keepz = map(x -> x[3], pts) .> sz[3] .|| map(x -> x[3], pts) .< 1
   keep = .!(keepx .| keepy .| keepz)
   return(pts[keep], keep)
 end
