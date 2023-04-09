@@ -135,3 +135,20 @@ function blob_pos_filter(blobs, range_limit)
   end
   blobf
 end 
+
+"""
+Crop blobs by position. blob locations will be re-positioned according to `coords`
+e.g.) coords = [101:200, 201:300, 301:400]
+if the original blob.location is (111, 201, 301), the cropped position is (11, 1, 1)
+"""
+function crop_blobs(blobs, coords)
+  blobf = blob_pos_filter(blobs, coords)
+  blobf1 = similar(blobf)
+  for (i, blob) in enumerate(blobf) #repositioning
+    loc = CartesianIndex(blob.location[1]-first(coords[1])+1, blob.location[2]-first(coords[2])+1, blob.location[3]-first(coords[3])+1)
+    amp = blob.amplitude
+    σ = blob.σ
+    blobf1[i] = BlobLoG(loc, σ, amp)
+  end
+  blobf1
+end
