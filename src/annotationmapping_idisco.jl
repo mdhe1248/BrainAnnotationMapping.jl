@@ -1,4 +1,4 @@
-using JSON, DataFrames, CSV
+using JSON, DataFrames, CSV, BrainAnnotationMapping
 
 """ warpper function"""
 function brainmapping(annotationImg, annotation, pts_filtered)
