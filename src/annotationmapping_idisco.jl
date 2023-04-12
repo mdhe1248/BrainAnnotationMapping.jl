@@ -60,6 +60,17 @@ function label_points(annotationImg, points::Vector)
   keep_lbl
 end
 
+function label_points(annotationImg, blobs::Vector{BloBLoG})
+#  fos_coords = map(x -> x.location, blobs)
+  points = [x.location for x in blobs]
+  keep_lbl = zeros(Int, length(points))
+  for (i, fos_coord) in enumerate(points)
+    lbl = annotationImg[fos_coord]
+    keep_lbl[i] = lbl
+  end
+  keep_lbl
+end
+
 """ filter points outside annotation image"""
 function filter_points(img, pts)
   sz = size(img) 
@@ -95,7 +106,6 @@ end
 `sz` image size
 """
 function voxelize_roi(sz, pos, amps, r; gaussian = true)
-  pos = Tuple(pos)
   img1 = zeros(sz)
   if gaussian == true
     k = Kernel.gaussian((r,r,r))
@@ -110,6 +120,7 @@ function voxelize_roi(sz, pos, amps, r; gaussian = true)
 end
 
 function _voxelize_roi!(img1, p1, amp, r, k)
+  p1 = Tuple(p1)
   fi = max(CartesianIndex(p1.-r), CartesianIndex(1,1,1))
   li = min(CartesianIndex(p1.+r), CartesianIndex(size(img1)))
   for (i, ci) in enumerate(fi:li)
