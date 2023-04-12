@@ -60,7 +60,7 @@ function label_points(annotationImg, points::Vector)
   keep_lbl
 end
 
-function label_points(annotationImg, blobs::Vector{BloBLoG})
+function label_points(annotationImg, blobs::Vector{BlobLoG})
 #  fos_coords = map(x -> x.location, blobs)
   points = [x.location for x in blobs]
   keep_lbl = zeros(Int, length(points))
