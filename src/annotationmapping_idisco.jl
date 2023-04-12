@@ -95,6 +95,7 @@ end
 `sz` image size
 """
 function voxelize_roi(sz, pos, amps, r; gaussian = true)
+  pos = Tuple(pos)
   img1 = zeros(sz)
   if gaussian == true
     k = Kernel.gaussian((r,r,r))
