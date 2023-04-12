@@ -60,8 +60,7 @@ function label_points(annotationImg, points::Vector)
   keep_lbl
 end
 
-function label_points(annotationImg, blobs::Vector{BlobLoG})
-#  fos_coords = map(x -> x.location, blobs)
+function label_points(annotationImg, blobs::Vector{BlobLoG{NTuple}})
   points = [x.location for x in blobs]
   keep_lbl = zeros(Int, length(points))
   for (i, fos_coord) in enumerate(points)
@@ -106,6 +105,21 @@ end
 `sz` image size
 """
 function voxelize_roi(sz, pos, amps, r; gaussian = true)
+  img1 = zeros(sz)
+  if gaussian == true
+    k = Kernel.gaussian((r,r,r))
+  else
+    k = ones(r,r,r)
+  end
+  for i in eachindex(pos)
+     p1, amp = pos[i], amps[i]
+    _voxelize_roi!(img1, p1, amp, r, k)
+  end
+  return(img1)
+end
+
+function voxelize_roi(sz, blobs::Vector{BlobLoG}, amps, r; gaussian = true)
+  pos = [x.location for x in blobs]
   img1 = zeros(sz)
   if gaussian == true
     k = Kernel.gaussian((r,r,r))
