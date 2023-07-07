@@ -239,7 +239,7 @@ function imcat(imgwcat::AbstractVector, channel::Number)
   sz = size(imgwcat[1])
   imcat1 = zeros(eltype(imgwcat[1]), sz[1], sz[2], length(imgwcat));
   for i in 1:size(imcat1,3)
-    imcat1[:,:,i] = imgwcat[i][:,:,4]
+    imcat1[:,:,i] = imgwcat[i][:,:,channel]
   end
   imcat1
 end
