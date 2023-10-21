@@ -198,7 +198,7 @@ function scale_pos(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
   s =  mv_pxspacing_midres #scale
   blobs_scaled = Vector{BlobPos}(undef, length(blobs_filtered))
   for (i, b) in enumerate(blobs_filtered)
-    blobs_scaled[i] = BlobPos((s[1].val*b.location[1]+yoffset, s[2].val*b.location[2]+yoffset), b.σ, b.amplitude)
+    blobs_scaled[i] = BlobPos((s[1].val*b.location[1]+yoffset, s[2].val*b.location[2]+xoffset), b.σ, b.amplitude)
   end
   return(blobs_scaled)
 end
