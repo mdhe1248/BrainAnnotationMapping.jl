@@ -194,12 +194,11 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
 end
 
 """coordinate scaling in physical space"""
-function scale_pos(blobs_filtered, mv_pxspacing_lowres, mv_pxspacing_midres)
-  ## Position scaling (midres -> lowres)
-  s =  mv_pxspacing_midres./mv_pxspacing_lowres #scale
+function scale_pos(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
+  s =  mv_pxspacing_midres #scale
   blobs_scaled = Vector{BlobPos}(undef, length(blobs_filtered))
   for (i, b) in enumerate(blobs_filtered)
-    blobs_scaled[i] = BlobPos((s[1]*b.location[1]*mv_pxspacing_lowres[1].val, s[2]*b.location[2]*mv_pxspacing_lowres[2].val), b.σ, b.amplitude)
+    blobs_scaled[i] = BlobPos((s[1].val*b.location[1]+yoffset, s[2].val*b.location[2]+yoffset), b.σ, b.amplitude)
   end
   return(blobs_scaled)
 end
