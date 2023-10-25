@@ -76,7 +76,7 @@ function getPosCounts(annotationimgw, pos, amp)
   a = [Vector{Float64}(undef,0) for i in eachindex(lbls)]
   n = 0 # to count the number of skipped blobs.
   for (i, p) in enumerate(pos)
-    if minimum(p...) < 1 #If the coordinate is smaller then 1, skip.
+    if minimum(p) < 1 #If the coordinate is smaller then 1, skip.
       n += 1
       println(string("Negative coordinate skipped. (", n, ")"))
     else 
