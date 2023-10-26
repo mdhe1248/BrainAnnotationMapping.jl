@@ -209,9 +209,16 @@ function scale_pos(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
   return(blobs_scaled)
 end
 
-"""blob position to data frame for antregistration point transformation"""
+"""blob position to data frame for antregistration point transformation
+if z is not provided, default z is 0."""
 function blobs2df(blobs_scaled)
-  df_pos = DataFrame(x = map(x -> x.location[1], blobs_scaled), y = map(x -> x.location[2], blobs_scaled), z = zeros(Int, length(blobs_scaled)), t = zeros(Int, length(blobs_scaled))) #data frame
+  df_pos, df_amp = blobs2df(blobs_scaled, 0)
+  df_amp = DataFrame(amplitude = map(x -> x.amplitude, blobs_scaled)) #data frame
+  return(df_pos, df_amp)
+end
+
+function blobs2df(blobs_scaled, z::Int)
+  df_pos = DataFrame(x = map(x -> x.location[1], blobs_scaled), y = map(x -> x.location[2], blobs_scaled), z = ones(Int, length(blobs_scaled)).*z, t = zeros(Int, length(blobs_scaled))) #data frame
   df_amp = DataFrame(amplitude = map(x -> x.amplitude, blobs_scaled)) #data frame
   return(df_pos, df_amp)
 end
