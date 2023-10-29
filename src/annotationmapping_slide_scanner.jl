@@ -4,6 +4,46 @@ struct BlobPos
   amplitude::Float64
 end
 
+## visualize moving images
+function pad_images(vector_of_images; h = :auto, w = :auto)
+  if h == :auto
+    h = max([size(vector_of_images[i],1) for i in eachindex(vector_of_images)]...)
+  end
+  if w == :auto
+    w = max([size(vector_of_images[i],2) for i in eachindex(vector_of_images)]...)
+  end
+  paddedimages= [PaddedView(0, vector_of_images[i], (h, w), padOrigin((h, w), vector_of_images[i])) for i in eachindex(vector_of_images)]
+  return(paddedimages)
+end
+
+#### Warp the fixed and annotation images
+function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, tfm)
+  ## load annotation image
+  annotationimg = load(annotationfn)
+  annotationimg = setAxis(parent(annotationimg), fx_pxspacing)
+
+  tfm = im_tform[1] #transformation
+  fixedw = warp(fixed, tfm, 0) #fill value is 0. If NaNs exist, antsRegistration does not work.
+  annotationw = warp(annotationimg, tfm, fillvalue = 0, method = BSpline(Constant()))
+  slices = slices0.-Base.axes(fixedw)[3].offset #offset to make "1" as the first frame.
+  fixed2ds = [parent(fixedw)[:,:,slice] for slice in slices]
+  
+  #### select the slices matching to the moving images
+  fixed2ds = map(x -> setAxis(parent(x), fx_pxspacing), fixed2ds) #Assign axes
+  annotation2ds = [parent(annotationw)[:,:,slice] for slice in slices]
+  annotation2ds = map(x->setAxis(parent(x), fx_pxspacing), annotation2ds) #Assign axes
+  
+  #### Save
+  ## save file names
+  fixed_tform_savefn = outdir*"fixed_tform.jld2"
+  fixed2d_savefns = string.(outdir, "fixed2d_", slices ,".nrrd") #save filename
+  annotation2d_savefns = string.(outdir, "annotation2d_", slices ,".nrrd") #save filename
+  save.(fixed2d_savefns, fixed2ds)
+  save.(annotation2d_savefns, annotation2ds)
+  save(fixed_tform_savefn, Dict("x_rot"=>x_rot, "y_rot"=>y_rot, "z_rot"=>z_rot, "tform" =>tfm, "slices"=>slices))
+end
+
+
 """
 #### Bouondary detection
 """
