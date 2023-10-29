@@ -22,7 +22,6 @@ function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, tfm)
   annotationimg = load(annotationfn)
   annotationimg = setAxis(parent(annotationimg), fx_pxspacing)
 
-  tfm = im_tform[1] #transformation
   fixedw = warp(fixed, tfm, 0) #fill value is 0. If NaNs exist, antsRegistration does not work.
   annotationw = warp(annotationimg, tfm, fillvalue = 0, method = BSpline(Constant()))
   slices = slices0.-Base.axes(fixedw)[3].offset #offset to make "1" as the first frame.
