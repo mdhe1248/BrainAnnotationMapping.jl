@@ -17,7 +17,7 @@ function pad_images(vector_of_images; h = :auto, w = :auto)
 end
 
 #### Warp the fixed and annotation images
-function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, tfm)
+function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, x_rot, y_rot, z_rot, tfm)
   ## load annotation image
   annotationimg = load(annotationfn)
   annotationimg = setAxis(parent(annotationimg), fx_pxspacing)
