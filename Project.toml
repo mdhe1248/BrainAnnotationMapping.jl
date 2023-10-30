@@ -4,7 +4,6 @@ authors = ["Donghoon Lee <mdhe1248@gmail.com> and contributors"]
 version = "0.1.0"
 
 [deps]
-AntsRegistrationUtils = "042051aa-0fb5-4500-882d-12ef3620cfc8"
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 ImageView = "86fae568-95e7-573e-a6b2-d8a6b900c9ef"
