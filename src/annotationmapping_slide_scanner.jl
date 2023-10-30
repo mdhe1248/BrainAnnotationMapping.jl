@@ -28,7 +28,7 @@ function overlay_boundary(vars::Vector{Regvars}, clim)
 end
 
 #### Warp the fixed and annotation images
-function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, x_rot, y_rot, z_rot, tfm)
+function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, tfm)
   ## load annotation image
   annotationimg = load(annotationfn)
   annotationimg = setAxis(parent(annotationimg), fx_pxspacing)
@@ -50,7 +50,7 @@ function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, x_ro
   annotation2d_savefns = string.(outdir, "annotation2d_", slices ,".nrrd") #save filename
   save.(fixed2d_savefns, fixed2ds)
   save.(annotation2d_savefns, annotation2ds)
-  save(fixed_tform_savefn, Dict("x_rot"=>x_rot, "y_rot"=>y_rot, "z_rot"=>z_rot, "tform" =>tfm, "slices"=>slices))
+  save(fixed_tform_savefn, Dict("x_rot"=>rad2deg(tfm.theta1), "y_rot"=>rad2deg(tfm.theta2), "z_rot"=>rad2deg(tfm.theta3), "tform" =>tfm, "slices"=>slices))
 end
 
 
