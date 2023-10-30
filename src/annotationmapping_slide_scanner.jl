@@ -4,16 +4,27 @@ struct BlobPos
   amplitude::Float64
 end
 
-## visualize moving images
-function pad_images(vector_of_images; h = :auto, w = :auto)
-  if h == :auto
-    h = max([size(vector_of_images[i],1) for i in eachindex(vector_of_images)]...)
+function overlay_boundary(var::Regvars, clim)
+  img = load(var.warpedfn)
+  attnimg = load(var.annotation2d_fn)
+  boundaryimg = overlay_boundary(img, attnimg, clim)
+  return(boundaryimg)
+end
+
+function overlay_boundary(img, attnimg, clim)
+  tmp = annotation_boundary(attnimg)
+  scalefun = scaleminmax(clim...) #contrast
+  boundaryimg = scalefun.(img)
+  boundaryimg[tmp .== 1] .= 1
+  return(boundaryimg)
+end
+
+function overlay_boundary(vars::Vector{Regvars}, clim)
+  boundaryimgs = Vector{Matrix}(undef, length(vars));
+  for i in eachindex(boundaryimgs)
+    boundaryimgs[i] = overlay_boundary(vars[i], clim)
   end
-  if w == :auto
-    w = max([size(vector_of_images[i],2) for i in eachindex(vector_of_images)]...)
-  end
-  paddedimages= [PaddedView(0, vector_of_images[i], (h, w), padOrigin((h, w), vector_of_images[i])) for i in eachindex(vector_of_images)]
-  return(paddedimages)
+  return(cat(boundaryimgs..., dims = 3))
 end
 
 #### Warp the fixed and annotation images
