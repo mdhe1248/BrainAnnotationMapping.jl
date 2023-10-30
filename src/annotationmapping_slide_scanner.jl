@@ -271,7 +271,7 @@ end
 detect_blobs(blobvars; show_threshold = false, show_blobs = false) = detect_blobs(blobvars.moving2d_fn, blobvars.cfos_channel, blobvars.thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs)
 
 """coordinate scaling in physical space"""
-function scale_pos(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
+function pos_in_physical_space(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
   s =  mv_pxspacing_midres #scale
   blobs_scaled = Vector{BlobPos}(undef, length(blobs_filtered))
   for (i, b) in enumerate(blobs_filtered)
@@ -280,7 +280,7 @@ function scale_pos(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
   return(blobs_scaled)
 end
 
-scale_pos(blobs_filtered, blobvars) = scale_pos(blobs_filtered, blobvars.mv_pxspacing, blobvars.xoffset, blobvars.yoffset)
+pos_in_physical_space(blobs_filtered, blobvars) = pos_in_physical_space(blobs_filtered, blobvars.mv_pxspacing, blobvars.xoffset, blobvars.yoffset)
 
 """blob position to data frame for antregistration point transformation
 if z is not provided, default z is 0."""
