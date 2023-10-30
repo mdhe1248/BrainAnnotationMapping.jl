@@ -4,6 +4,24 @@ struct BlobPos
   amplitude::Float64
 end
 
+mutable struct BlobVars
+  outdir::String
+  moving2d_fn::String
+  mv_pxspacing::NTuple{2, Number} #pixel spacing (mid resolution)
+  thresh_slope::Float64 #cfos detection threshold
+  cfos_channel::Int #cfos channel
+  xoffset::Number #in micrometer
+  yoffset::Number
+  pts_pos_scaled_savefn::String
+  pts_amp_savefn::String
+  ptsw_pos_savefn::String
+end
+BlobVars(outdir, moving2d_fn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset) = BlobVars(outdir, moving2d_fn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset,
+  string(outdir, first(splitext(last(splitdir(moving2d_fn)))), "_cfos_points.csv"),
+  string(outdir, first(splitext(last(splitdir(moving2d_fn)))), "_cfos_amplitude.csv"),
+  string(outdir, first(splitext(last(splitdir(moving2d_fn)))), "_cfos_points_tform.csv"))
+
+
 function overlay_boundary(var::Regvars, clim)
   img = load(var.warpedfn)
   attnimg = load(var.annotation2d_fn)
@@ -198,6 +216,7 @@ findnearest(A::AbstractArray,t) = findmin(abs.(A.-t))[2]
 """
 Image filtering and blob detection
 """
+
 function detect_blobs(movingfn, ch, thresh_slope; show_threshold = false, show_blobs = false)
   ## Load images
   img = load(movingfn)
@@ -249,6 +268,8 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
   return(blobs_filtered)
 end
 
+detect_blobs(blobvars; show_threshold = false, show_blobs = false) = detect_blobs(blobvars.moving2d_fn, blobvars.cfos_channel, blobvars.thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs)
+
 """coordinate scaling in physical space"""
 function scale_pos(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
   s =  mv_pxspacing_midres #scale
@@ -258,6 +279,8 @@ function scale_pos(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
   end
   return(blobs_scaled)
 end
+
+scale_pos(blobs_filtered, blobvars) = scale_pos(blobs_filtered, blobvars.mv_pxspacing, blobvars.xoffset, blobvars.yoffset)
 
 """blob position to data frame for antregistration point transformation
 if z is not provided, default z is 0."""
