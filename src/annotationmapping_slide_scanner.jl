@@ -50,7 +50,7 @@ function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, tfm)
   annotation2d_savefns = string.(outdir, "annotation2d_", slices ,".nrrd") #save filename
   save.(fixed2d_savefns, fixed2ds)
   save.(annotation2d_savefns, annotation2ds)
-  save(fixed_tform_savefn, Dict("x_rot"=>rad2deg(tfm.theta1), "y_rot"=>rad2deg(tfm.theta2), "z_rot"=>rad2deg(tfm.theta3), "tform" =>tfm, "slices"=>slices))
+  save(fixed_tform_savefn, Dict("x_rot"=>rad2deg(tfm.linear.theta1), "y_rot"=>rad2deg(tfm.linear.theta2), "z_rot"=>rad2deg(tfm.linear.theta3), "tform" =>tfm, "slices"=>slices))
 end
 
 
