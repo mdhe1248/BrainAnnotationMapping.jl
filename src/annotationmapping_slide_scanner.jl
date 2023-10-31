@@ -290,16 +290,16 @@ findnearest(A::AbstractArray,t) = findmin(abs.(A.-t))[2]
 Image filtering and blob detection
 """
 
-function detect_blobs(movingfn, ch, thresh_slope; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05))
+function detect_blobs(movingfn, ch, thresh_slope, σ; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05))
   ## Load images
   img = load(movingfn)
   imgc = img[:,:, ch] #cFos image
-  blobs_filtered = detect_blobs(imgc, thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs, ptsize = ptsize, clim = clim)
+  blobs_filtered = detect_blobs(imgc, thresh_slope, σ; show_threshold = show_threshold, show_blobs = show_blobs, ptsize = ptsize, clim = clim)
   println("Done.")
   return(blobs_filtered)
 end
 
-function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05))
+function detect_blobs(imgc::AbstractMatrix, thresh_slope, σ; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05))
   ## background subtraction
   imgb = erode(imgc) # minimum filter
   imgb = erode(imgb) # minimum filter
@@ -308,7 +308,7 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
   
   ## blob detection
   imgf = imfilter(imgsig, Kernel.gaussian(1))
-  blobs_log = blob_LoG(imgf, [1]); #Dence detection
+  blobs_log = blob_LoG(imgf, σ); #Dence detection
   
   ## thresholding
   inten = map(x -> x.amplitude, blobs_log)
@@ -338,7 +338,7 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
   return(blobs_filtered)
 end
 
-detect_blobs(blobvars; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05)) = detect_blobs(blobvars.movingfn, blobvars.cfos_channel, blobvars.thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs, ptsize = ptsize, clim = clim)
+detect_blobs(blobvars, σ; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05)) = detect_blobs(blobvars.movingfn, blobvars.cfos_channel, blobvars.thresh_slope, σ; show_threshold = show_threshold, show_blobs = show_blobs, ptsize = ptsize, clim = clim)
 
 """coordinate scaling in physical space"""
 function pos_in_physical_space(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
