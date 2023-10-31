@@ -290,11 +290,11 @@ findnearest(A::AbstractArray,t) = findmin(abs.(A.-t))[2]
 Image filtering and blob detection
 """
 
-function detect_blobs(movingfn, ch, thresh_slope; show_threshold = false, show_blobs = false)
+function detect_blobs(movingfn, ch, thresh_slope; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05))
   ## Load images
   img = load(movingfn)
   imgc = img[:,:, ch] #cFos image
-  blobs_filtered = detect_blobs(imgc, thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs)
+  blobs_filtered = detect_blobs(imgc, thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs, ptsize = ptsize, clim = clim)
   println("Done.")
   return(blobs_filtered)
 end
