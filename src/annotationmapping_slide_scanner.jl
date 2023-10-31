@@ -6,7 +6,7 @@ end
 
 mutable struct BlobVars
   outdir::String
-  moving2d_fn::String
+  movingfn::String
   mv_pxspacing::NTuple{2, Number} #pixel spacing (mid resolution)
   thresh_slope::Float64 #cfos detection threshold
   cfos_channel::Int #cfos channel
@@ -16,10 +16,10 @@ mutable struct BlobVars
   pts_amp_savefn::String
   ptsw_pos_savefn::String
 end
-BlobVars(outdir, moving2d_fn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset) = BlobVars(outdir, moving2d_fn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset,
-  string(outdir, first(splitext(last(splitdir(moving2d_fn)))), "_cfos_points.csv"),
-  string(outdir, first(splitext(last(splitdir(moving2d_fn)))), "_cfos_amplitude.csv"),
-  string(outdir, first(splitext(last(splitdir(moving2d_fn)))), "_cfos_points_tform.csv"))
+BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset) = BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset,
+  string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points.csv"),
+  string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_amplitude.csv"),
+  string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points_tform.csv"))
 
 function imshow_blobs(blobs::Vector, img1, fontsize, clim)
   guidict = ImageView.imshow(img1, CLim(clim...));
@@ -282,7 +282,7 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
   return(blobs_filtered)
 end
 
-detect_blobs(blobvars; show_threshold = false, show_blobs = false) = detect_blobs(blobvars.moving2d_fn, blobvars.cfos_channel, blobvars.thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs)
+detect_blobs(blobvars; show_threshold = false, show_blobs = false) = detect_blobs(blobvars.movingfn, blobvars.cfos_channel, blobvars.thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs)
 
 """coordinate scaling in physical space"""
 function pos_in_physical_space(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
