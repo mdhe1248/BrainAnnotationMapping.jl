@@ -53,7 +53,7 @@ function imshow_blobs(img_vec::Vector, blobs_vec::Vector{<:Vector{<:BlobLoG}}, c
   end
   return(guidict)
 end
-imshow_blobs(img1, blobs::Vector{<:BlobLoG}, clim; size = 1, scale = true) = imshow_blobs1([img1], [blobs], clim; size = size, scale = scale)
+imshow_blobs(img1, blobs::Vector{<:BlobLoG}, clim; size = 1, scale = true) = imshow_blobs([img1], [blobs], clim; size = size, scale = scale)
 function imshow_blobs(img_vec::Vector, blobs_vec::Vector{<:DataFrame}, clim; size = 1, scale = true)
   img = cat(img_vec..., dims = 3)
   guidict = ImageView.imshow(img, CLim(clim...));
