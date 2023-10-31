@@ -18,7 +18,7 @@ mutable struct BlobVars
   pts_amp_savefn::String
   ptsw_pos_savefn::String
 end
-BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset, σ) = BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset, σ
+BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset, σ) = BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset, σ,
   outdir*"blobvars_"*first(splitext(last(splitdir(movingfn))))[end-1:end]*".jld2", #regvar fn
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_amplitude.csv"),
