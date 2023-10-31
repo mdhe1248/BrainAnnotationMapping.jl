@@ -20,6 +20,7 @@ BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yo
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_amplitude.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points_tform.csv"))
+
 assign_blobvars(outdir, movingfns::Vector, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset) = [BlobVars(outdir, movingfn, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset) for movingfn in movingfns]
 
 function save_blobs_in_physical_space(blobs::Vector, blobvars::BlobVars; show_threshold = false, show_blobs = false)
