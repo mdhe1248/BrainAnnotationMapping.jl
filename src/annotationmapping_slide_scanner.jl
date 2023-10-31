@@ -333,7 +333,7 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
 
   #### Visualize
   if show_blobs
-    imshow_blobs(imgc, blobs_filtered, ptsize, CLim(clim));
+    imshow_blobs(imgc, blobs_filtered, clim; size = ptsize);
   end
   return(blobs_filtered)
 end
