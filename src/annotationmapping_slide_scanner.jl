@@ -12,6 +12,7 @@ mutable struct BlobVars
   cfos_channel::Int #cfos channel
   xoffset::Number #in micrometer
   yoffset::Number
+  σ::Vector
   blobvars_fn::String
   pts_pos_scaled_savefn::String
   pts_amp_savefn::String
@@ -345,7 +346,7 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope, σ; show_threshold = f
   return(blobs_filtered)
 end
 
-detect_blobs(blobvars, σ; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05)) = detect_blobs(blobvars.movingfn, blobvars.cfos_channel, blobvars.thresh_slope, σ; show_threshold = show_threshold, show_blobs = show_blobs, ptsize = ptsize, clim = clim)
+detect_blobs(blobvars; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05)) = detect_blobs(blobvars.movingfn, blobvars.cfos_channel, blobvars.thresh_slope, blobvars.σ; show_threshold = show_threshold, show_blobs = show_blobs, ptsize = ptsize, clim = clim)
 
 """coordinate scaling in physical space"""
 function pos_in_physical_space(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
