@@ -20,24 +20,79 @@ BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yo
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_amplitude.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points_tform.csv"))
+assign_blobvars(outdir, movingfns::Vector, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset) = [BlobVars(outdir, movingfn, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset) for movingfn in movingfns]
 
-function imshow_blobs(blobs::Vector, img1, fontsize, clim)
-  guidict = ImageView.imshow(img1, CLim(clim...));
-  for blob in blobs
-    y, x = blob.location[1], blob.location[2]
-    idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=fontsize))
+function save_blobs_in_physical_space(blobs::Vector, blobvars::BlobVars; show_threshold = false, show_blobs = false)
+  blobs_scaled = pos_in_physical_space(blobs, blobvars)
+  df_pos, df_amp = blobs2df(blobs_scaled)
+  CSV.write(blobvars.pts_pos_scaled_savefn, df_pos)
+  CSV.write(blobvars.pts_amp_savefn, df_amp) #save as CSV
+  println("Saved.")
+end
+
+function runAntsApplyTransformsToPoints(regvar, blobvar)
+  warped_nrrd_fns = regvar.warpout_fn
+  tform1_fn = regvar.tform1_fn
+  inverse_warp_fn = regvar.inverse_warp_fn
+  pts_fn = blobvar.pts_pos_scaled_savefn
+  ptsw_fn = blobvar.ptsw_pos_savefn
+  antsApplyTransformsToPoints = `antsApplyTransformsToPoints -d 2 -i $pts_fn -o $ptsw_fn -t \[$tform1_fn, 1\] -t $inverse_warp_fn` # For points, transformation is inversed
+  run(antsApplyTransformsToPoints) #FYI, data will be saved
+end
+
+function imshow_blobs(img_vec::Vector, blobs_vec::Vector{<:Vector{<:BlobLoG}}, clim; size = 1, scale = true)
+  img = cat(img_vec..., dims = 3)
+  guidict = ImageView.imshow(img, CLim(clim...));
+  for (i, blobs) in enumerate(blobs_vec)
+    pos = Vector{NTuple{2, Real}}()
+    for blob in blobs
+      push!(pos, (blob.location[2], blob.location[1]))
+    end
+    idx = annotate!(guidict, AnnotationPoints(pos, shape = '.', size=size, color=RGB(1,0,0), z = i, scale = scale))
   end
   return(guidict)
 end
-
-function imshow_blobs(blobs::DataFrame, img1, fontsize, clim)
-  guidict = ImageView.imshow(img1, CLim(clim...));
-  for blob in eachrow(blobs)
-    y, x = blob[1], blob[2]
-    idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=fontsize))
+imshow_blobs(img1, blobs::Vector{<:BlobLoG}, clim; size = 1, scale = true) = imshow_blobs1([img1], [blobs], clim; size = size, scale = scale)
+function imshow_blobs(img_vec::Vector, blobs_vec::Vector{<:DataFrame}, clim; size = 1, scale = true)
+  img = cat(img_vec..., dims = 3)
+  guidict = ImageView.imshow(img, CLim(clim...));
+  for (i, blobs) in enumerate(blobs_vec)
+    pos = Vector{NTuple{2, Real}}()
+    for blob in eachrow(blobs)
+      push!(pos, (blob[2], blob[1]))
+    end
+    idx = annotate!(guidict, AnnotationPoints(pos, shape = '.', size=size, color=RGB(1,0,0), z = i, scale = scale))
   end
   return(guidict)
 end
+imshow_blobs(img1, blobs::DataFrame, clim; size = 1, scale = true) = imshow_blobs([img1], [blobs], clim; size = size, scale = scale)
+
+function imshow_blobs(imgfns::Vector{<:String}, blob_fns::Vector{<:String}, clim, fx_pxspacing; size = 1, scale = true)
+  img_vec = load.(imgfns)
+  blobs_vec = load_pos_in_index_space(blob_fns, fx_pxspacing)
+  guidict = imshow_blobs(blobs_vec, img_vec, clim; size = size, scale = scale)
+  return(guidict)
+end
+imshow_blobs(imgfn::String, blob_fn::String, clim, fx_pxspacing; size = 1, scale = true) = imshow_blobs([imgfn], [blob_fn], clim, fx_pxspacing; size = size, scale = scale)
+
+
+#function imshow_blobs(blobs::Vector, img1, fontsize, clim)
+#  guidict = ImageView.imshow(img1, CLim(clim...));
+#  for blob in blobs
+#    y, x = blob.location[1], blob.location[2]
+#    idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=fontsize))
+#  end
+#  return(guidict)
+#end
+#
+#function imshow_blobs(blobs::DataFrame, img1, fontsize, clim)
+#  guidict = ImageView.imshow(img1, CLim(clim...));
+#  for blob in eachrow(blobs)
+#    y, x = blob[1], blob[2]
+#    idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=fontsize))
+#  end
+#  return(guidict)
+#end
 
 function overlay_boundary(var::Regvars, clim)
   img = load(var.warpedfn)
@@ -243,7 +298,7 @@ function detect_blobs(movingfn, ch, thresh_slope; show_threshold = false, show_b
   return(blobs_filtered)
 end
 
-function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false, show_blobs = false)  
+function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05))
   ## background subtraction
   imgb = erode(imgc) # minimum filter
   imgb = erode(imgb) # minimum filter
@@ -277,7 +332,7 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
 
   #### Visualize
   if show_blobs
-    imshow_blobs(blobs_filtered, imgc, 10, CLim(0, 0.05));
+    imshow_blobs(imgc, blobs_filtered, ptsize, CLim(clim));
   end
   return(blobs_filtered)
 end
