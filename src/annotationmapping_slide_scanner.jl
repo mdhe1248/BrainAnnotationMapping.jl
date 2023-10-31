@@ -12,14 +12,21 @@ mutable struct BlobVars
   cfos_channel::Int #cfos channel
   xoffset::Number #in micrometer
   yoffset::Number
+  blobvars_fn::String
   pts_pos_scaled_savefn::String
   pts_amp_savefn::String
   ptsw_pos_savefn::String
 end
 BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset) = BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset,
+  outdir*"blobvars_"*first(splitext(last(splitdir(movingfn))))[end-1:end]*".jld2", #regvar fn
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_amplitude.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points_tform.csv"))
+
+function save_blobvars(var)
+  jldsave(var.blobvars_fn, blobvars = var)
+end
+save_blobvars(vars::AbstractVector) = [save_blobvars(var) for var in vars]
 
 assign_blobvars(outdir, movingfns::Vector, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset) = [BlobVars(outdir, movingfn, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset) for movingfn in movingfns]
 
