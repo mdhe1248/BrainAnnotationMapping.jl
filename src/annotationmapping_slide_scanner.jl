@@ -21,6 +21,23 @@ BlobVars(outdir, moving2d_fn, mv_pxspacing, thresh_slope, cfos_channel, xoffset,
   string(outdir, first(splitext(last(splitdir(moving2d_fn)))), "_cfos_amplitude.csv"),
   string(outdir, first(splitext(last(splitdir(moving2d_fn)))), "_cfos_points_tform.csv"))
 
+function imshow_blobs(blobs::Vector, img1, fontsize, clim)
+  guidict = ImageView.imshow(img1, CLim(clim...));
+  for blob in blobs
+    y, x = blob.location[1], blob.location[2]
+    idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=1))
+  end
+  return(guidict)
+end
+
+function imshow_blobs(blobs::DataFrame, img1, fontsize, clim)
+  guidict = ImageView.imshow(img1, CLim(clim...));
+  for blob in eachrow(blobs)
+    y, x = blob[1], blob[2]
+    idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=fontsize))
+  end
+  return(guidict)
+end
 
 function overlay_boundary(var::Regvars, clim)
   img = load(var.warpedfn)
@@ -222,6 +239,7 @@ function detect_blobs(movingfn, ch, thresh_slope; show_threshold = false, show_b
   img = load(movingfn)
   imgc = img[:,:, ch] #cFos image
   blobs_filtered = detect_blobs(imgc, thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs)
+  println("Done.")
   return(blobs_filtered)
 end
 
@@ -259,12 +277,7 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
 
   #### Visualize
   if show_blobs
-    guidict = ImageView.imshow(imgc, CLim(0, 0.03));
-    for blob in blobs_filtered
-      y, x = blob.location[1], blob.location[2]
-      idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=10))
-    end
-  end
+    imshow_blobs(blobs_filtered, imgc, 10, CLim(0, 0.05));
   return(blobs_filtered)
 end
 
@@ -309,12 +322,12 @@ function loadimgs(imgfns)
 end
 
 """Load coordinates at the fixed image physical scales"""
-function load_pos_in_physical_space(ptsw_pos_savefn, fx_pxspacing)
+function load_pos_in_index_space(ptsw_pos_savefn, fx_pxspacing)
   ptsw = CSV.read(ptsw_pos_savefn, DataFrame) #points warped in physical space
   df = DataFrame(:x => round.(Int, ptsw.x/fx_pxspacing[1].val), :y => round.(Int, ptsw.y/fx_pxspacing[1].val), :z =>0, :t => 0)
   return(df)
 end
-load_pos_in_physical_space(ptsw_pos_savefns::Vector{String}, fx_pxspacing) = [load_pos_in_physical_space(ptsw_pos_savefn, fx_pxspacing) for ptsw_pos_savefn in ptsw_pos_savefns]
+load_pos_in_index_space(ptsw_pos_savefns::Vector{String}, fx_pxspacing) = [load_pos_in_index_space(ptsw_pos_savefn, fx_pxspacing) for ptsw_pos_savefn in ptsw_pos_savefns]
 
 """ Load multiple dataframe files """
 loaddfs(fns::Vector{String}) = [CSV.read(fn, DataFrame) for fn in fns]
