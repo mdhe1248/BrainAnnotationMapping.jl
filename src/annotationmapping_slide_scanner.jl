@@ -338,7 +338,7 @@ function detect_blobs(imgc::AbstractMatrix, thresh_slope; show_threshold = false
   return(blobs_filtered)
 end
 
-detect_blobs(blobvars; show_threshold = false, show_blobs = false) = detect_blobs(blobvars.movingfn, blobvars.cfos_channel, blobvars.thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs)
+detect_blobs(blobvars; show_threshold = false, show_blobs = false, ptsize = 0.5, clim = (0, 0.05)) = detect_blobs(blobvars.movingfn, blobvars.cfos_channel, blobvars.thresh_slope; show_threshold = show_threshold, show_blobs = show_blobs, ptsize = ptsize, clim = clim)
 
 """coordinate scaling in physical space"""
 function pos_in_physical_space(blobs_filtered, mv_pxspacing_midres, xoffset, yoffset)
