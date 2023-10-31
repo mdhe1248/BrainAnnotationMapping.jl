@@ -25,7 +25,7 @@ function imshow_blobs(blobs::Vector, img1, fontsize, clim)
   guidict = ImageView.imshow(img1, CLim(clim...));
   for blob in blobs
     y, x = blob.location[1], blob.location[2]
-    idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=1))
+    idx = annotate!(guidict, AnnotationText(x, y, "x", color=RGB(1,0,0), fontsize=fontsize))
   end
   return(guidict)
 end
