@@ -31,7 +31,7 @@ BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yo
 function blobEdgeFiltering(blobs::Vector{<:BlobLoG}, img::AbstractArray, threshold, r)
   nd = ndims(img)
   keep = falses(length(blobs))
-  Threads.@threads for i in eachindex(blobs)
+  for i in eachindex(blobs)
     Ifirst = max(blobs[i].location - CartesianIndex(Tuple(fill(r, nd))), CartesianIndex(Tuple(ones(Int, nd))))
     Ilast = min(blobs[i].location + CartesianIndex(Tuple(fill(r, nd))), CartesianIndex(size(img)))
     if quantile(vec(img[Ifirst:Ilast]), 0.1) > threshold
