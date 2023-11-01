@@ -13,12 +13,15 @@ mutable struct BlobVars
   xoffset::Number #in micrometer
   yoffset::Number
   σ::Vector
+  edge_threshold_intensity::Number
+  edge_threshold_radius::Number
+  intensity_threshold::NTuple{2, Number}
   blobvars_fn::String
   pts_pos_scaled_savefn::String
   pts_amp_savefn::String
   ptsw_pos_savefn::String
 end
-BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset, σ) = BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset, σ,
+BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset, σ, edge_threshold_intensity, edge_threshold_radius, intensity_threshold) = BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yoffset, σ, edge_threshold_intensity, edge_threshold_radius, intensity_threshold,
   outdir*"blobvars_"*first(splitext(last(splitdir(movingfn))))[end-1:end]*".jld2", #regvar fn
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_amplitude.csv"),
