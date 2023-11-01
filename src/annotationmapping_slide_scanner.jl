@@ -27,6 +27,48 @@ BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yo
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_amplitude.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points_tform.csv"))
 
+"""filter blobs using intensity thresholding nearby"""
+function blobEdgeFiltering(blobs::Vector{<:BlobLoG}, img::AbstractArray, threshold, r)
+  nd = ndims(img)
+  keep = falses(length(blobs))
+  Threads.@threads for i in eachindex(blobs)
+    Ifirst = max(blobs[i].location - CartesianIndex(Tuple(fill(r, nd))), CartesianIndex(Tuple(ones(Int, nd))))
+    Ilast = min(blobs[i].location + CartesianIndex(Tuple(fill(r, nd))), CartesianIndex(size(img)))
+    if quantile(vec(img[Ifirst:Ilast]), 0.1) > threshold
+      keep[i] = true
+    end
+  end
+  return(keep)
+end
+
+function blobEdgeFiltering(blobs, blobvars::BlobVars)
+  threshold = blobvars.edge_threshold_intensity
+  r = blobvars.edge_threshold_radius
+  img = load(blobvars.movingfn)
+  img1 = view(img, :,:,blobvars.cfos_channel)
+  keep = blobEdgeFiltering(blobs, img1, threshold, r)
+  return keep
+end
+
+function blobIntensityFiltering(blobs::Vector{<:BlobLoG}, img::AbstractArray, threshold_low_high)
+  keep = falses(length(blobs))
+  l, h = threshold_low_high
+  for (i, blob) in enumerate(blobs)
+    if img[blob.location] > l && img[blob.location] < h
+      keep[i] = true
+    end
+  end
+  keep
+end
+
+function blobIntensityFiltering(blobs, blobvars::BlobVars)
+  threshold_low_high = blobvars.intensity_threshold
+  img = load(blobvars.movingfn)
+  img1 = view(img, :,:,blobvars.cfos_channel)
+  keep = blobIntensityFiltering(blobs, img1, threshold_low_high)
+  return keep
+end
+
 function save_blobvars(var)
   jldsave(var.blobvars_fn, blobvars = var)
 end
