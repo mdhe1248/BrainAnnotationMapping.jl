@@ -32,7 +32,7 @@ function save_blobvars(var)
 end
 save_blobvars(vars::AbstractVector) = [save_blobvars(var) for var in vars]
 
-assign_blobvars(outdir, movingfns::Vector, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset, σ) = [BlobVars(outdir, movingfn, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset, σ) for movingfn in movingfns]
+assign_blobvars(outdir, movingfns::Vector, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset, σ, edge_threshold_intensity, edge_threshold_radius, intensity_threshold) = [BlobVars(outdir, movingfn, mv_pxspacing_midres, thresh_slope, cfos_channel, xoffset, yoffset, σ, edge_threshold_intensity, edge_threshold_radius, intensity_threshold) for movingfn in movingfns]
 
 function save_blobs_in_physical_space(blobs::Vector, blobvars::BlobVars; show_threshold = false, show_blobs = false)
   blobs_scaled = pos_in_physical_space(blobs, blobvars)
