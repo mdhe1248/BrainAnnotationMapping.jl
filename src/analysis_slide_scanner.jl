@@ -35,12 +35,12 @@ function addIntensities(structures::DataFrame, regvars::Vector{<:Regvars}, blobv
   #### Append total fos count
   counts_dat = Matrix(newstructures[:, contains.(names(newstructures), "FosCounts")])
   counts_dat[ismissing.(counts_dat)] .= 0 #replace missing => 0
-  counts_colsum = vec(sum(counts_mat, dims = 2))
+  counts_colsum = vec(sum(counts_dat, dims = 2))
   newstructures[!, "FosCounts_all"] = counts_colsum # append count column
 
   #### Append total Fos amplitudes
   amps_dat = Matrix(newstructures[:, contains.(names(newstructures), "FosAmplitudes")])
-  amps_vec = [vcat(i...) for i in eachrow(amps_mat)]
+  amps_vec = [vcat(i...) for i in eachrow(amps_dat)]
   amps_vec = map(x -> x[.!ismissing.(x)], amps_vec) #amplitude per blob in each brain area
   newstructures[!, "FosAmplitudes_all"] = amps_vec  #append amplitude column
   return(newstructures)
