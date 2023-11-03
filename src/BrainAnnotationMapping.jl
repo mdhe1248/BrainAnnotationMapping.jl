@@ -6,5 +6,6 @@ export retrieve, isdownstream, label_points, filter_points, count_cells, brainma
 
 include("annotationmapping_idisco.jl")
 include("annotationmapping_slide_scanner.jl")
+include("analysis_slide_scanner.jl")
 
 end
