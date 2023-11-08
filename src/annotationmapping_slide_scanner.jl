@@ -40,7 +40,7 @@ function invpos(blobvars, regvars, fixed, tform, fx_pxspacing)
   ptsw_physical = CSV.read.((x -> x.ptsw_pos_savefn).(blobvars), DataFrame)
   imgw = warpedview(fixed, tform)
   offsets = map(first, indices_spatial(imgw))
-  iposv = Vector{Pos}()
+  iposv = Vector{iPos}()
   for (j, df) in enumerate(ptsw_physical)
     xis = df[:, :x]
     yis = df[:, :y]
@@ -49,7 +49,7 @@ function invpos(blobvars, regvars, fixed, tform, fx_pxspacing)
       xi = i[1]/fx_pxspacing[1].val + offsets[1]
       yi = i[2]/fx_pxspacing[2].val + offsets[2]
       ipos = map(x -> round.(Int, x), tform([xi, yi, zi]))
-      push!(iposv, Pos(ipos[1], ipos[2], ipos[3]))
+      push!(iposv, iPos(ipos[1], ipos[2], ipos[3]))
     end
   end
   return iposv
