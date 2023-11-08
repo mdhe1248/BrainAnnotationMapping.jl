@@ -106,42 +106,32 @@ end
 """
 function voxelize_roi(sz, pos, amps, r; gaussian = true)
   img1 = zeros(sz)
-  if gaussian == true
+  if gaussian
     k = Kernel.gaussian((r,r,r))
   else
     k = ones(r,r,r)
   end
   for i in eachindex(pos)
      p1, amp = pos[i], amps[i]
-    _voxelize_roi!(img1, p1, amp, r, k)
+    _voxelize_roi1!(img1, p1, amp, r, k)
   end
   return(img1)
 end
 
 function voxelize_roi(sz, blobs::Vector{<:BlobLoG}, amps, r; gaussian = true)
   pos = [x.location for x in blobs]
-  img1 = zeros(sz)
-  if gaussian == true
-    k = Kernel.gaussian((r,r,r))
-  else
-    k = ones(r,r,r)
-  end
-  for i in eachindex(pos)
-     p1, amp = pos[i], amps[i]
-    _voxelize_roi!(img1, p1, amp, r, k)
-  end
+  amps = [x.amplitude for x in blobs]
+  img1 = voxelize_roi(sz, pos, amps, r; gaussian = gaussian) 
   return(img1)
 end
 
 function _voxelize_roi!(img1, p1, amp, r, k)
   p1 = Tuple(p1)
-  fi = max(CartesianIndex(p1.-r), CartesianIndex(1,1,1))
-  li = min(CartesianIndex(p1.+r), CartesianIndex(size(img1)))
-  for (i, ci) in enumerate(fi:li)
-    if sqrt((ci.I[1]-p1[1])^2+(ci.I[2]-p1[2])^2+(ci.I[3]-p1[3])^2) <= r
-      amp = amp
-      img1[ci] = img1[ci]+amp*k[i]
-    end
+  fi = max(CartesianIndex(p1.-2r), CartesianIndex(1,1,1))
+  li = min(CartesianIndex(p1.+2r), CartesianIndex(size(img1)))
+  k = OffsetArray(k, OffsetArrays.Origin(p1.-2r))
+  for ci in fi:li
+    img1[ci] = img1[ci]+amp*k[ci]
   end
   return(img1)
 end
