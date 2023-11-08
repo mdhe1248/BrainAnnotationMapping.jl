@@ -27,6 +27,35 @@ BlobVars(outdir, movingfn, mv_pxspacing, thresh_slope, cfos_channel, xoffset, yo
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_amplitude.csv"),
   string(outdir, first(splitext(last(splitdir(movingfn)))), "_cfos_points_tform.csv"))
 
+#### to store inversed coordinates
+struct iPos
+  xi::Int
+  yi::Int
+  zi::Int
+end
+iPos(xi, yi, zi) = iPos(round(Int, xi), round(Int, yi), round(Int, zi))
+
+#### inverse transform the coordinates obtained from ants
+function invpos(blobvars, regvars, fixed, tform, fx_pxspacing)
+  ptsw_physical = CSV.read.((x -> x.ptsw_pos_savefn).(blobvars), DataFrame)
+  imgw = warpedview(fixed, tform)
+  offsets = map(first, indices_spatial(imgw))
+  iposv = Vector{Pos}()
+  for (j, df) in enumerate(ptsw_physical)
+    xis = df[:, :x]
+    yis = df[:, :y]
+    zi = Float64(regvars[j].fixed_slice + offsets[3])
+    for i in zip(xis, yis)
+      xi = i[1]/fx_pxspacing[1].val + offsets[1]
+      yi = i[2]/fx_pxspacing[2].val + offsets[2]
+      ipos = map(x -> round.(Int, x), tform([xi, yi, zi]))
+      push!(iposv, Pos(ipos[1], ipos[2], ipos[3]))
+    end
+  end
+  return iposv
+end
+
+
 """filter blobs using intensity thresholding nearby"""
 function blobEdgeFiltering(blobs::Vector{<:BlobLoG}, img::AbstractArray, threshold, r)
   nd = ndims(img)
