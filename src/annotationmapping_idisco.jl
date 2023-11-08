@@ -113,7 +113,7 @@ function voxelize_roi(sz, pos, amps, r; gaussian = true)
   end
   for i in eachindex(pos)
      p1, amp = pos[i], amps[i]
-    _voxelize_roi1!(img1, p1, amp, r, k)
+    _voxelize_roi!(img1, p1, amp, r, k)
   end
   return(img1)
 end
