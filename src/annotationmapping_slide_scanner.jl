@@ -201,6 +201,37 @@ function overlay_boundary(vars::Vector{Regvars}, clim)
 end
 
 #### Warp the fixed and annotation images
+"""
+`warp_reference1` will save a transformed fixed image, a transformed annotation image, and a transformation Dict: 
+"fixed2d_slice.nrrd", "annotation2d_slice.nrrd", and "fixed_tform_slice.jld2", where slice is a z-index in `imsliceGUI`.
+In the transformation Dict, applying `tform` to the input fixed image will result in the transformed image possibly shown in `imsliceGUI`.
+When images are stored, their offset values are discarded. Thus, `offsets` in the transformation Dict stores offset values from the transformed image.
+"""
+function warp_reference1(outdir, tag, fixed, annotationfn, slice1, fx_pxspacing, tfm1)
+  annotationimg = load(annotationfn)
+  annotationimg = setAxis(parent(annotationimg), fx_pxspacing)
+
+  fixedw = warp(fixed, tfm1, 0) #fill value is 0. If NaNs exist, antsRegistration does not work.
+  annotationw = warp(annotationimg, tfm1, fillvalue = 0, method = BSpline(Constant()))
+  offsets = map(x -> x.offset, Base.axes(fixedw))
+  slice = slice1-offsets[3] #offset to make "1" as the first frame.
+
+  #### select the slice matching to the moving images
+  fixed2d = parent(fixedw)[:,:,slice]
+  fixed2d = setAxis(parent(fixed2d), fx_pxspacing) #Assign axes
+  annotation2d = parent(annotationw)[:,:,slice1]
+  annotation2d = setAxis(parent(annotation2d), fx_pxspacing) #Assign axes
+
+  ## save file names
+  fixed_tform_savefn = string(outdir, "fixed_tform_", tag, ".jld2")
+  fixed2d_savefn = string(outdir, "fixed2d_", tag, ".nrrd") #save filename
+  annotation2d_savefn = string(outdir, "annotation2d_", tag, ".nrrd") #save filename
+  save(fixed2d_savefn, fixed2d)
+  save(annotation2d_savefn, annotation2d)
+  save(fixed_tform_savefn, Dict("x_rot"=>rad2deg(tfm1.linear.theta1), "y_rot"=>rad2deg(tfm1.linear.theta2), "z_rot"=>rad2deg(tfm1.linear.theta3), "tform" =>tfm1, "slice"=>slice1, "offsets"=>offsets))
+end
+
+####
 function warp_reference(outdir, fixed, annotationfn, slices0, fx_pxspacing, tfm)
   ## load annotation image
   annotationimg = load(annotationfn)
