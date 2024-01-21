@@ -197,6 +197,7 @@ function overlay_boundary(vars::Vector{Regvars}, clim)
   for i in eachindex(boundaryimgs)
     boundaryimgs[i] = overlay_boundary(vars[i], clim)
   end
+  boundaryimgs = pad_images(boundaryimgs)
   return(cat(boundaryimgs..., dims = 3))
 end
 
@@ -219,7 +220,7 @@ function warp_reference1(outdir, tag, fixed, annotationfn, slice1, fx_pxspacing,
   #### select the slice matching to the moving images
   fixed2d = parent(fixedw)[:,:,slice]
   fixed2d = setAxis(parent(fixed2d), fx_pxspacing) #Assign axes
-  annotation2d = parent(annotationw)[:,:,slice1]
+  annotation2d = parent(annotationw)[:,:,slice]
   annotation2d = setAxis(parent(annotation2d), fx_pxspacing) #Assign axes
 
   ## save file names
