@@ -33,7 +33,7 @@ struct iPos
   yi::Int
   zi::Int
 end
-iPos(xi, yi, zi) = iPos(round(Int, xi), round(Int, yi), round(Int, zi))
+iPos(xi::Real, yi::Real, zi::Real) = iPos(round(Int, xi), round(Int, yi), round(Int, zi))
 
 #### inverse transform the coordinates obtained from ants
 function invpos(blobvars, regvars, fixed, tform, fx_pxspacing)
